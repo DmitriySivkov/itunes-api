@@ -1,0 +1,19 @@
+// app global css in SCSS form
+
+.table {
+  &_fixed {
+    table-layout:fixed;
+  }
+}
+
+.td {
+  &_break-word {
+    word-wrap: break-word !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+  }
+
+  &_shrink {
+    width:1px;
+  }
+}

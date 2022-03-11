@@ -1,0 +1,42 @@
+version: '3.3'
+
+services:
+
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx.dockerfile
+    container_name: itunes-nginx
+    volumes:
+      - ./:/var/www/itunes-api
+    ports:
+      - 127.0.0.1:8080:80
+    links:
+      - php
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php-fpm.dockerfile
+    container_name: itunes-php
+    volumes:
+      - ./:/var/www/itunes-api
+      - ./docker/php-ini:/usr/local/etc/php/custom.d
+    environment:
+      PHP_INI_SCAN_DIR: "/usr/local/etc/php/custom.d:/usr/local/etc/php/conf.d"
+    links:
+      - pg
+
+  pg:
+    build:
+      context: .
+      dockerfile: docker/pg.dockerfile
+    container_name: itunes-pg
+    volumes:
+      - ./Makefile:/Makefile
+    ports:
+      - 127.0.0.1:53307:5432
+    environment:
+      - POSTGRES_DB=itunes_db
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
