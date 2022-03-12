@@ -16,16 +16,17 @@ class CreateSongsTable extends Migration
         Schema::create('songs', function (Blueprint $table) {
             $table->id();
             $table->string('kind');
-            $table->string('collection_name');
-            $table->string('track_name');
-            $table->string('collection_price');
-            $table->string('track_price');
-            $table->string('primary_genre_name');
-            $table->string('track_count');
-            $table->string('track_number');
-            $table->string('release_date');
-            $table->foreignId('band_id');
+            $table->string('collectionName');
+            $table->string('trackName');
+            $table->decimal('collectionPrice');
+            $table->decimal('trackPrice');
+            $table->string('primaryGenreName');
+            $table->string('trackCount');
+            $table->integer('trackNumber');
+            $table->datetime('releaseDate');
             $table->timestamps();
+
+            $table->unique(['collectionName', 'releaseDate', 'trackName']);
         });
     }
 

@@ -7,7 +7,13 @@ export const getList = async ({commit}) => {
 }
 
 export const addSong = async ({commit}, payload) => {
-  await api.post("songs", { ...payload }).then((response) => {
+  await api.post("songs", payload).then((response) => {
     commit("ADD_SONG", response.data)
+  })
+}
+
+export const truncateSong = async ({commit}, payload) => {
+  await api.delete("songs").then(() => {
+    commit("SET_SONGS", [])
   })
 }

@@ -2,59 +2,58 @@
   <q-page class="column q-mt-xl">
     <div class="row justify-center">
       <div class="col-xs-12 col-md-6">
-        <q-form @submit="onSubmit">
+        <q-form>
           <q-input
             filled
-            v-model="song"
+            v-model="search"
             label="Search"
             lazy-rules
             :rules="[ val => val && val.length > 0 || 'Please type something']"
           >
             <template v-slot:after>
-              <q-btn label="Find" type="submit" color="primary" size="lg" />
+              <q-btn label="find and store" color="secondary" size="lg" @click="searchItunes"/>
+              <q-btn label="empty table" color="red-9" size="lg" @click="emptyTable"/>
             </template>
           </q-input>
         </q-form>
       </div>
     </div>
-    <div class="row justify-center">
-      <div class="col-xs-12 col-md-6">
+    <div v-for="(arSongs, year) in songsByYear"
+         :key="year"
+         class="row justify-center"
+    >
+      <div class="col-xs-12 col-md-8">
         <q-markup-table
           dark
-          class="bg-indigo-8 table_fixed"
+          class="bg-indigo-8 q-mb-xl"
         >
           <thead>
             <tr>
-              <td class="text-center" style="width:5%">№</td>
-              <td class="text-center" style="width:15%">Title</td>
-              <td class="text-center">Description</td>
-              <td class="text-center" style="width:25%">Action</td>
+              <td class="text-center">collectionName</td>
+              <td class="text-center">collectionPrice</td>
+              <td class="text-center">kind</td>
+              <td class="text-center">primaryGenreName</td>
+              <td class="text-center">releaseDate</td>
+              <td class="text-center">trackCount</td>
+              <td class="text-center">trackName</td>
+              <td class="text-center">trackNumber</td>
+              <td class="text-center">trackPrice</td>
             </tr>
           </thead>
           <tbody>
           <tr
-            v-for="(song, index) in songs"
+            v-for="(song, index) in arSongs"
             :key="index"
           >
-            <td class="text-center">{{ song.id }}</td>
-            <td class="td_break-word text-center">{{ song.title }}</td>
-            <td class="td_break-word">{{ song.description }}</td>
-            <td class="text-center">
-              <div class="q-gutter-sm">
-                <q-btn
-                  label="Update"
-                  size="sm"
-                  color="info"
-                  :to="{ name: 'updatesong', params: { id: song.id } }"
-                />
-                <q-btn
-                  label="Delete"
-                  size="sm"
-                  color="negative"
-                  @click="confirmDelete(song.id)"
-                />
-              </div>
-            </td>
+            <td class="text-center">{{ song.collectionName }}</td>
+            <td class="text-center">{{ song.collectionPrice }}</td>
+            <td class="text-center">{{ song.kind }}</td>
+            <td class="text-center">{{ song.primaryGenreName }}</td>
+            <td class="text-center">{{ song.releaseDate }}</td>
+            <td class="text-center">{{ song.trackCount }}</td>
+            <td class="text-center">{{ song.trackName }}</td>
+            <td class="text-center">{{ song.trackNumber }}</td>
+            <td class="text-center">{{ song.trackPrice }}</td>
           </tr>
           </tbody>
         </q-markup-table>
@@ -66,37 +65,35 @@
 <script>
 import { computed } from "vue"
 import { useStore } from "vuex"
-import { useQuasar } from "quasar"
+import { external_api } from "src/boot/axios";
+import { ref } from "vue"
+
 export default {
   setup() {
     const $store = useStore()
-    const songs = computed(() => $store.state.song.data)
-    const $q = useQuasar()
+    const songsByYear = computed(() => $store.state.song.data)
 
-    if (songs.value.length < 1)
+    const search = ref("")
+
+    if (songsByYear.value.length < 1)
       $store.dispatch("song/getList")
 
     return {
-      songs,
+      songsByYear,
+      search,
 
-      confirmDelete(songId) {
-        $q.dialog({
-          title: 'Confirm',
-          message: 'Are you sure you want to delete the song ?',
-          cancel: true,
-          persistent: true
-        }).onOk(() => {
-          $store.dispatch("song/deletesong", {
-            id: songId
-          }).then(() => {
-            $q.notify({
-              color: "green-4",
-              textColor: "white",
-              icon: "cloud_done",
-              message: "The song is successfully deleted"
-            })
-          })
+      async searchItunes() {
+        await external_api.get("", {
+          params: {
+            term: search.value
+          }
+        }).then((response) => {
+          $store.dispatch("song/addSong", response.data.results)
         })
+      },
+
+      async emptyTable() {
+        $store.dispatch("song/truncateSong")
       }
     }
   }

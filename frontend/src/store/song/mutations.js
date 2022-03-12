@@ -3,5 +3,5 @@ export const SET_SONGS = (state, payload) => {
 }
 
 export const ADD_SONG = (state, payload) => {
-  state.data.unshift(payload)
+  state.data = {...payload}
 }

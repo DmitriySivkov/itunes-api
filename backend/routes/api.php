@@ -22,4 +22,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['prefix' => 'songs'], function() {
     Route::post('', [SongController::class, 'store']);
     Route::get('', [SongController::class, 'index']);
+    Route::delete('', [SongController::class, 'truncate']);
 });
